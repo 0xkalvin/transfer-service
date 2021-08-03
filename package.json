@@ -1,0 +1,41 @@
+{
+  "name": "transfer-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "migrate": "node_modules/.bin/sequelize db:migrate",
+    "start-rest-server": "nodemon src/entrypoints/rest-server.js",
+    "start-transfer-creation-worker": "nodemon src/entrypoints/transfer-creation-worker.js",
+    "start-transfer-processor-worker": "nodemon src/entrypoints/transfer-processor-worker.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0xkalvin/transfer-service.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/0xkalvin/transfer-service/issues"
+  },
+  "homepage": "https://github.com/0xkalvin/transfer-service#readme",
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.24.0",
+    "express": "^4.17.1",
+    "helmet": "^4.6.0",
+    "kafkajs": "^1.15.0",
+    "pg": "^8.7.1",
+    "pg-hstore": "^2.3.4",
+    "pino": "^6.13.0",
+    "sequelize": "^6.6.5",
+    "sequelize-cli": "^6.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.4",
+    "nodemon": "^2.0.12"
+  }
+}

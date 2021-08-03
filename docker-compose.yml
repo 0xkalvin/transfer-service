@@ -1,0 +1,120 @@
+version: '2.3'
+
+services:
+  base:
+    build:
+      context: .
+      args: 
+        - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env.example
+
+  postgres:
+    container_name: postgres
+    image: postgres:11.7-alpine
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=500MB"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.2.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:6.2.0
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+  sqs:
+    container_name: sqs
+    image: roribio16/alpine-sqs
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    volumes:
+      - ./src/data-sources/sqs/local-setup.conf:/opt/config/elasticmq.conf
+
+  migrate:
+    extends: base
+    entrypoint: npm run migrate
+    depends_on:
+      - postgres
+  
+  rest-server:
+    container_name: rest-server
+    extends: base
+    command: npm run start-rest-server
+    ports:
+      - "3000:3000"
+    links:
+      - postgres
+    depends_on:
+      - migrate
+    environment: 
+      - APP_NAME=rest_server
+      - APP_TYPE=server
+      - DATABASE_MAX_CONNECTIONS=100
+
+  transfer-processor-worker:
+    container_name: transfer-processor-worker
+    extends: base
+    command: npm run start-transfer-processor-worker
+    links:
+      - postgres
+      - kafka
+    depends_on:
+      - migrate
+      - kafka
+    environment: 
+      - APP_NAME=transfer_processor_worker
+      - APP_TYPE=worker
+      - DATABASE_MAX_CONNECTIONS=100
+
+  transfer-creation-worker:
+    container_name: transfer-creation-worker
+    extends: base
+    command: npm run start-transfer-creation-worker
+    links:
+      - postgres
+      - sqs
+    depends_on:
+      - migrate
+      - sqs
+    environment: 
+      - APP_NAME=transfer_creation_worker
+      - APP_TYPE=worker
+      - DATABASE_MAX_CONNECTIONS=100

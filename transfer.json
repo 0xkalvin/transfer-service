@@ -1,0 +1,8 @@
+{
+    "name": "transfer_creation",
+    "payload": {
+        "amount": 10,
+        "source_account_id": "e24ed78b-e423-4fff-b19e-e1ab9e7ef26c",
+        "target_account_id": "0822f9a7-59d4-4b11-a37b-1d0831c896a9"
+    }
+}
