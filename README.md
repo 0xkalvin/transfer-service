@@ -1,6 +1,6 @@
 # Transfer service
 
-A simple, over-engineered Node.js bank transfer system that leverages (or tries to) hexagonal architecture. 
+A simple, over-engineered Node.js bank transfer system that leverages ~~or tries to~~ hexagonal architecture. It's an in progress project to play around and have fun, feel free to contribute by any means. 
 
 ## Requirements
 
