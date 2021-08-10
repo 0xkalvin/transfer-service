@@ -1,6 +1,7 @@
 const postgres = require('../../data-sources/postgres');
 const kafka = require('../../data-sources/kafka');
 const elasticseach = require('../../data-sources/elasticsearch');
+const redis = require('../../data-sources/redis');
 
 const {
   KAFKA_TRANSFERS_PROCESSOR_TOPIC,
@@ -90,12 +91,44 @@ async function search(filters) {
   return transfers;
 }
 
+function checkIdempotency(sourceAccount, idempotencyKey) {
+  return new Promise((resolve, reject) => {
+    const key = `${sourceAccount}.${idempotencyKey}`;
+
+    redis.client.get(key, (error, result) => {
+      if (error) {
+        reject(error);
+      }
+
+      resolve(result);
+    });
+  });
+}
+
+function saveIdempotency(sourceAccount, idempotencyKey) {
+  return new Promise((resolve, reject) => {
+    const key = `${sourceAccount}.${idempotencyKey}`;
+
+    const expiresInSeconds = 60 * 60 * 24;
+
+    redis.client.setex(key, expiresInSeconds, true, (error, result) => {
+      if (error) {
+        reject(error);
+      }
+
+      resolve(result);
+    });
+  });
+}
+
 module.exports = {
+  checkIdempotency,
   create,
   enqueue,
   index,
   findById,
   findBySourceAccountId,
+  saveIdempotency,
   search,
   update,
 };

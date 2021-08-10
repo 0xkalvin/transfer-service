@@ -38,6 +38,13 @@ services:
       - ES_JAVA_OPTS=-Xmx256m -Xms256m
       - ELASTIC_PASSWORD=changeme
 
+  redis:
+    container_name: redis
+    image: redis:6-alpine
+    command: redis-server --requirepass secret
+    ports:
+      - "6379:6379"
+
   zookeeper:
     image: confluentinc/cp-zookeeper:6.2.0
     hostname: zookeeper

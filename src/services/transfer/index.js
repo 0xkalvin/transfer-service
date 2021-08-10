@@ -2,12 +2,28 @@ const accountRepository = require('../../repositories/account');
 const transferRepository = require('../../repositories/transfer');
 const logger = require('../../lib/logger')('TRANSFER_SERVICE');
 
-async function create(payload) {
+async function create(payload, idempotencyKey = null) {
   const {
     sourceAccountId,
     targetAccountId,
     transferAmount,
   } = payload;
+
+  if (idempotencyKey) {
+    const alreadyExists = await transferRepository.checkIdempotency(
+      sourceAccountId,
+      idempotencyKey,
+    );
+
+    if (alreadyExists) {
+      throw new Error('Transfer already created with same idempotency key');
+    }
+
+    transferRepository.saveIdempotency(
+      sourceAccountId,
+      idempotencyKey,
+    );
+  }
 
   const [sourceAccount, targetAccount] = await Promise.all([
     accountRepository.findById(sourceAccountId, {

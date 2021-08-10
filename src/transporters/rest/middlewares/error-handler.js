@@ -19,14 +19,12 @@ function errorHandler(error, request, response, next) {
     return next(error);
   }
 
-  console.error(error);
-
   const normalizedError = normalizeError(error);
 
   return response
-    .status(normalizedError.statusCode)
+    .status(normalizedError.statusCode || 500)
     .json({
-      error: normalizedError.responseObject,
+      error: normalizedError.message,
       method: request.method,
       url: request.url,
     });
