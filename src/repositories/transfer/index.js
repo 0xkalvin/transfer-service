@@ -105,11 +105,9 @@ function checkIdempotency(sourceAccount, idempotencyKey) {
   });
 }
 
-function saveIdempotency(sourceAccount, idempotencyKey) {
+function saveIdempotency(sourceAccount, idempotencyKey, expiresInSeconds) {
   return new Promise((resolve, reject) => {
     const key = `${sourceAccount}.${idempotencyKey}`;
-
-    const expiresInSeconds = 60 * 60 * 24;
 
     redis.client.setex(key, expiresInSeconds, true, (error, result) => {
       if (error) {

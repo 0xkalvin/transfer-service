@@ -1,6 +1,7 @@
 const accountRepository = require('../../repositories/account');
 const transferRepository = require('../../repositories/transfer');
 const logger = require('../../lib/logger')('TRANSFER_SERVICE');
+const { BusinessError } = require('../../lib/business-errors');
 
 async function create(payload, idempotencyKey = null) {
   const {
@@ -16,12 +17,17 @@ async function create(payload, idempotencyKey = null) {
     );
 
     if (alreadyExists) {
-      throw new Error('Transfer already created with same idempotency key');
+      throw new BusinessError(
+        'Transfer already created with same idempotency key', 'CONFLICT_ERROR',
+      );
     }
+
+    const expiresInSeconds = 60 * 60 * 24;
 
     transferRepository.saveIdempotency(
       sourceAccountId,
       idempotencyKey,
+      expiresInSeconds,
     );
   }
 
@@ -34,15 +40,15 @@ async function create(payload, idempotencyKey = null) {
     })]);
 
   if (!sourceAccount) {
-    throw new Error('Source account does not exist');
+    throw new BusinessError('Source account does not exist', 'LOGIC_INFRACTION');
   }
 
   if (!targetAccount) {
-    throw new Error('Target account does not exist');
+    throw new BusinessError('Target account does not exist', 'LOGIC_INFRACTION');
   }
 
   if (transferAmount > sourceAccount.balance) {
-    throw new Error('Insufficient balance for source account');
+    throw new BusinessError('Insufficient balance for source account', 'LOGIC_INFRACTION');
   }
 
   const createdTransfer = await transferRepository.create({
@@ -86,15 +92,15 @@ async function process(payload) {
   ]);
 
   if (!transfer) {
-    throw new Error('Transfer does not exist');
+    throw new BusinessError('Transfer does not exist', 'LOGIC_INFRACTION');
   }
 
   if (!sourceAccount) {
-    throw new Error('Source Account does not exist');
+    throw new BusinessError('Source account does not exist', 'LOGIC_INFRACTION');
   }
 
   if (!targetAccount) {
-    throw new Error('Target account does not exist');
+    throw new BusinessError('Target account does not exist', 'LOGIC_INFRACTION');
   }
 
   const sourceAccountNewBalance = Number(sourceAccount.balance) - Number(transfer.amount);

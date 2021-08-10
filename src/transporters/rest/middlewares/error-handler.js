@@ -1,8 +1,21 @@
 const logger = require('../../../lib/logger')('ERROR_HANDLER');
+const { BusinessError } = require('../../../lib/business-errors');
+const {
+  ConflicError,
+  InternalServerError,
+  UnprocessableEntityError,
+} = require('../http-errors');
+
+const businessErrorsToHttpMap = new Map([
+  ['CONFLICT_ERROR', ConflicError],
+  ['LOGIC_INFRACTION', UnprocessableEntityError],
+]);
 
 const normalizeError = (error) => {
-  if (error instanceof Error) {
-    return error;
+  if (error instanceof BusinessError) {
+    const HttpError = businessErrorsToHttpMap.get(error.type);
+
+    return new HttpError(error.message);
   }
 
   logger.error({
@@ -11,7 +24,7 @@ const normalizeError = (error) => {
     error_stack: error.stack,
   });
 
-  return new Error(error.message);
+  return new InternalServerError();
 };
 
 function errorHandler(error, request, response, next) {
@@ -22,9 +35,9 @@ function errorHandler(error, request, response, next) {
   const normalizedError = normalizeError(error);
 
   return response
-    .status(normalizedError.statusCode || 500)
+    .status(normalizedError.statusCode)
     .json({
-      error: normalizedError.message,
+      error: normalizedError.responseObject,
       method: request.method,
       url: request.url,
     });
