@@ -95,6 +95,39 @@ src
                 └── index.js
 ```
 
+## Running locally
+
+Requirements:
+- Docker
+- Docker compose
+- Unix-like OS
+
+After fulling all requirements, start everything up by running
+```sh
+make
+```
+
+Then you will find running:
+- a Http server listening on port 3000
+- Postgres + Elasticsearch + redis containers 
+- kafka + zookeeper + sqs containers
+
+
+Check out the api reference below for details about how to call each endpoint :) 
+
+## REPL
+
+To start up the repl, just run 
+```sh
+make repl
+```
+
+In the repl, you can also create a transfer as following
+
+```js
+await createTransfer({ sourceAccountId: "f0916334-e4eb-43cb-b9eb-a2a9e89277e3", targetAccountId: "b4703965-b530-4941-b6e0-c975dce98ac9", transferAmount: 15 })
+```
+
 ## REST API
 
 ### POST /accounts
@@ -193,18 +226,6 @@ Response (status code 201)
 }
 ```
 
-## Repl
-
-To start up the repl, just run 
-```sh
-make repl
-```
-
-In the repl, you can also create a transfer as following
-
-```js
-await createTransfer({ sourceAccountId: "f0916334-e4eb-43cb-b9eb-a2a9e89277e3", targetAccountId: "b4703965-b530-4941-b6e0-c975dce98ac9", transferAmount: 15 })
-```
 
 ## TODO
 - Add GRPC transporter
