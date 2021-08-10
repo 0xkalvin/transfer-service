@@ -24,6 +24,7 @@
   "homepage": "https://github.com/0xkalvin/transfer-service#readme",
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.24.0",
+    "@elastic/elasticsearch": "^7.13.0",
     "express": "^4.17.1",
     "helmet": "^4.6.0",
     "kafkajs": "^1.15.0",

@@ -36,25 +36,7 @@ async function connect() {
   }
 }
 
-async function openTransaction(options) {
-  const transaction = connectionPool.transaction(options);
-
-  return transaction;
-}
-
-async function commitTransaction(transaction) {
-  try {
-    await transaction.commit();
-  } catch (error) {
-    transaction.rollback();
-
-    throw error;
-  }
-}
-
 module.exports = {
   connectionPool,
   connect,
-  commitTransaction,
-  openTransaction,
 };

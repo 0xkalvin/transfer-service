@@ -1,6 +1,7 @@
 const restApplication = require('./application');
 const kafka = require('../../data-sources/kafka');
 const postgres = require('../../data-sources/postgres');
+const elasticsearch = require('../../data-sources/elasticsearch');
 const logger = require('../../lib/logger')('REST_SERVER_ENTRYPOINT');
 
 const {
@@ -14,6 +15,16 @@ async function run() {
   } catch (error) {
     logger.fatal({
       message: 'Rest server failed to connect to postgres. Exiting process...',
+    });
+
+    process.exit(1);
+  }
+
+  try {
+    await elasticsearch.connect();
+  } catch (error) {
+    logger.fatal({
+      message: 'Rest server failed to connect to elasticsearch. Exiting process...',
     });
 
     process.exit(1);

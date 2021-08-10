@@ -1,11 +1,12 @@
 const postgres = require('../../data-sources/postgres');
+const elasticseach = require('../../data-sources/elasticsearch');
 
 async function create(payload) {
   const { Account } = postgres.connectionPool.models;
 
   const createdAccount = await Account.create(payload);
 
-  return createdAccount;
+  return createdAccount.toJSON ? createdAccount.toJSON() : createdAccount;
 }
 
 async function findById(id, options) {
@@ -33,8 +34,43 @@ async function update(filter, updates, options) {
   return updatedAccounts;
 }
 
+async function index(payload) {
+  await elasticseach.connectionPool.index({
+    index: 'accounts',
+    body: payload,
+    id: payload.id,
+  });
+}
+
+async function search(filters) {
+  const { body } = await elasticseach.connectionPool.search({
+    index: 'accounts',
+    body: filters,
+  });
+
+  // eslint-disable-next-line no-underscore-dangle
+  const accounts = body.hits.hits.map((item) => item._source);
+
+  return accounts;
+}
+
+async function get(accountId) {
+  const { body } = await elasticseach.connectionPool.get({
+    index: 'accounts',
+    id: accountId,
+  });
+
+  // eslint-disable-next-line no-underscore-dangle
+  const account = body._source;
+
+  return account;
+}
+
 module.exports = {
   create,
   findById,
+  get,
+  index,
+  search,
   update,
 };

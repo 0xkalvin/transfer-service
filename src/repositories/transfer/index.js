@@ -1,5 +1,6 @@
 const postgres = require('../../data-sources/postgres');
 const kafka = require('../../data-sources/kafka');
+const elasticseach = require('../../data-sources/elasticsearch');
 
 const {
   KAFKA_TRANSFERS_PROCESSOR_TOPIC,
@@ -69,10 +70,32 @@ async function update(filter, updates, options) {
   return updatedTransfers;
 }
 
+async function index(payload) {
+  await elasticseach.connectionPool.index({
+    index: 'transfers',
+    body: payload,
+    id: payload.id,
+  });
+}
+
+async function search(filters) {
+  const { body } = await elasticseach.connectionPool.search({
+    index: 'transfers',
+    body: filters,
+  });
+
+  // eslint-disable-next-line no-underscore-dangle
+  const transfers = body.hits.hits.map((item) => item._source);
+
+  return transfers;
+}
+
 module.exports = {
   create,
   enqueue,
+  index,
   findById,
   findBySourceAccountId,
+  search,
   update,
 };

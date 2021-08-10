@@ -41,6 +41,8 @@ async function create(payload) {
     targetAccountId,
   });
 
+  transferRepository.index(createdTransfer);
+
   return createdTransfer;
 }
 

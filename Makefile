@@ -5,13 +5,18 @@ down:
 	@docker-compose down -v --rmi local
 .PHONY: down
 
-infra: zookeeper kafka sqs postgres 
+infra: zookeeper kafka sqs postgres elasticsearch
 .PHONY: infra
 
 kafka:
 	@docker-compose up -d kafka
 	@sleep 2
 .PHONY: kafka
+
+elasticsearch:
+	@docker-compose up -d elasticsearch
+	@sleep 2
+.PHONY: elasticsearch
 
 postgres:
 	@docker-compose up -d postgres
@@ -23,7 +28,7 @@ run:
 .PHONY: run
 
 repl:
-	@docker-compose run repl
+	@docker-compose run --rm repl
 .PHONY: repl
 
 sqs:
