@@ -5,9 +5,95 @@ A simple, over-engineered Node.js bank transfer system that leverages (or tries 
 ## Requirements
 
 - Must support creating accounts and transfers.
-- Must support creating transfer through a REST API and SQS queue.
-- Transfer should be enqueued so it can be processed in background async. 
-- Should use at least 2 message queues and 2 databases. Oh yes!
+- Must support creating transfer through a REST API, a SQS queue, a GRPC API, and also a REPL. That's what "Transporters" are, alternative ways of inputting data in this application for interacting with the business entities.
+- When a transfer is processed, accounts' balances should be updated.
+- Must use a couple of databases and messaging queues for the sweet purpose of over engineering :joy:
+
+## Architecture
+
+- Two servers: one using REST and one using GRPC.
+- Two queue workers: one consuming a SQS queue and one using Kafka.
+- Databases: Postgres for transactional data, Elasticsearch for fast reads/reporting, and Redis for ephemeral data such as Idempotency keys.
+- Each Idempotency key used for creating a transfer should cease to exist after 24 hours. 
+- When a transfer created, it is persisted on a Postgres's table, replicated to an Elasticseach storage  
+, and its Idempotency key is inserted in Redis Layer for 24 hours of timespan.
+- When a Transfer is created, it must be enqueued in a Kafka topic so it can be processed in background async.  
+
+
+## Folder structure 
+
+```text
+src
+├── data-sources // Places where we get/send data to. Could be databases, other microservices, external APIs, messaging queues.  
+│   ├── elasticsearch
+│   │   ├── config.js
+│   │   └── index.js
+│   ├── kafka
+│   │   ├── client.js
+│   │   ├── config.js
+│   │   ├── consumer.js
+│   │   ├── index.js
+│   │   └── producer.js
+│   ├── postgres
+│   │   ├── config.js
+│   │   ├── index.js
+│   │   ├── migrations
+│   │   │   ├── 20210803012952-create-accounts.js
+│   │   │   └── 20210803013010-create-transfers.js
+│   │   └── models
+│   │       ├── account.js
+│   │       ├── index.js
+│   │       └── transfer.js
+│   ├── redis
+│   │   ├── config.js
+│   │   └── index.js
+│   └── sqs
+│       ├── client.js
+│       ├── config.js
+│       ├── index.js
+│       ├── local-setup.conf
+│       └── poller.js
+├── lib // Utilities shared between our application
+│   ├── business-errors.js
+│   └── logger.js
+├── repositories // Repositories for each entity, abstracting data sources access 
+│   ├── account
+│   │   └── index.js
+│   └── transfer
+│       └── index.js
+├── services // Where all business logic is handled, it orchestrates our rules for each entity
+│   ├── account
+│   │   └── index.js
+│   └── transfer
+│       └── index.js
+└── transporters // Defines how we expose our business entities/logic to the world. 
+    ├── grpc
+    ├── kafka
+    │   └── entrypoint.js
+    ├── repl
+    │   └── entrypoint.js
+    ├── rest
+    │   ├── application.js
+    │   ├── controllers
+    │   │   ├── account
+    │   │   │   └── index.js
+    │   │   └── transfer
+    │   │       └── index.js
+    │   ├── entrypoint.js
+    │   ├── http-errors.js
+    │   └── middlewares
+    │       ├── error-handler.js
+    │       ├── http-logger.js
+    │       ├── validator-handler.js
+    │       └── wrap-async.js
+    └── sqs
+        ├── entrypoint.js
+        ├── process.js
+        └── processors
+            ├── index.js
+            └── transfers
+                └── index.js
+```
 
 ## REST API
 
@@ -107,5 +193,21 @@ Response (status code 201)
 }
 ```
 
-## SQS
-todo
+## Repl
+
+To start up the repl, just run 
+```sh
+make repl
+```
+
+In the repl, you can also create a transfer as following
+
+```js
+await createTransfer({ sourceAccountId: "f0916334-e4eb-43cb-b9eb-a2a9e89277e3", targetAccountId: "b4703965-b530-4941-b6e0-c975dce98ac9", transferAmount: 15 })
+```
+
+## TODO
+- Add GRPC transporter
+- decouple Kafka  transporter
+- Add database transations
+- Add schemas
