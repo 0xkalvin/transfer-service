@@ -1,7 +1,7 @@
-const restApplication = require('../transporters/rest');
-const kafka = require('../data-sources/kafka');
-const postgres = require('../data-sources/postgres');
-const logger = require('../lib/logger')('REST_SERVER_ENTRYPOINT');
+const restApplication = require('./application');
+const kafka = require('../../data-sources/kafka');
+const postgres = require('../../data-sources/postgres');
+const logger = require('../../lib/logger')('REST_SERVER_ENTRYPOINT');
 
 const {
   PORT = 3000,

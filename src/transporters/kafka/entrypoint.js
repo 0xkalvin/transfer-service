@@ -1,8 +1,8 @@
-const postgres = require('../data-sources/postgres');
-const kafka = require('../data-sources/kafka');
-const transferService = require('../services/transfer');
+const postgres = require('../../data-sources/postgres');
+const kafka = require('../../data-sources/kafka');
+const transferService = require('../../services/transfer');
 
-const logger = require('../lib/logger')('TRANSFER_PROCESSOR_WORKER');
+const logger = require('../../lib/logger')('TRANSFER_PROCESSOR_WORKER');
 
 const {
   KAFKA_TRANSFERS_PROCESSOR_TOPIC,

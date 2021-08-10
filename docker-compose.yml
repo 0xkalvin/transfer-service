@@ -77,7 +77,7 @@ services:
   rest-server:
     container_name: rest-server
     extends: base
-    command: npm run start-rest-server
+    command: npm run start:rest-server
     ports:
       - "3000:3000"
     links:
@@ -92,7 +92,7 @@ services:
   transfer-processor-worker:
     container_name: transfer-processor-worker
     extends: base
-    command: npm run start-transfer-processor-worker
+    command: npm run start:transfer-kafka-processor-worker
     links:
       - postgres
       - kafka
@@ -102,12 +102,12 @@ services:
     environment: 
       - APP_NAME=transfer_processor_worker
       - APP_TYPE=worker
-      - DATABASE_MAX_CONNECTIONS=100
+      - DATABASE_MAX_CONNECTIONS=50
 
   transfer-creation-worker:
     container_name: transfer-creation-worker
     extends: base
-    command: npm run start-transfer-creation-worker
+    command: npm run start:transfer-sqs-creation-worker
     links:
       - postgres
       - sqs
@@ -117,4 +117,19 @@ services:
     environment: 
       - APP_NAME=transfer_creation_worker
       - APP_TYPE=worker
-      - DATABASE_MAX_CONNECTIONS=100
+      - DATABASE_MAX_CONNECTIONS=50
+
+  repl:
+    container_name: repl
+    extends: base
+    command: npm run start:repl
+    links:
+      - postgres
+      - sqs
+    depends_on:
+      - migrate
+      - sqs
+    environment: 
+      - APP_NAME=repl
+      - APP_TYPE=repl
+      - DATABASE_MAX_CONNECTIONS=10

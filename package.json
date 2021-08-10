@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "migrate": "node_modules/.bin/sequelize db:migrate",
-    "start-rest-server": "nodemon src/entrypoints/rest-server.js",
-    "start-transfer-creation-worker": "nodemon src/entrypoints/transfer-creation-worker.js",
-    "start-transfer-processor-worker": "nodemon src/entrypoints/transfer-processor-worker.js",
+    "start:rest-server": "nodemon src/transporters/rest/entrypoint.js",
+    "start:repl": "node src/transporters/repl/entrypoint.js",
+    "start:transfer-kafka-processor-worker": "nodemon src/transporters/kafka/entrypoint.js",
+    "start:transfer-sqs-creation-worker": "nodemon src/transporters/sqs/entrypoint.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

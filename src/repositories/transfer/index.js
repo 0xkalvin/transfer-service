@@ -8,9 +8,11 @@ const {
 async function create(payload, options) {
   const { Transfer } = postgres.connectionPool.models;
 
-  const createdTransfer = await Transfer.create(payload, options);
+  const createdTransfer = await Transfer.create(payload, {
+    ...options,
+  });
 
-  return createdTransfer;
+  return createdTransfer.toJSON ? createdTransfer.toJSON() : createdTransfer;
 }
 
 async function findById(id, options) {

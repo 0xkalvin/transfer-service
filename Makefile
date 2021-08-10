@@ -22,6 +22,10 @@ run:
 	@docker-compose up rest-server transfer-processor-worker transfer-creation-worker
 .PHONY: run
 
+repl:
+	@docker-compose run repl
+.PHONY: repl
+
 sqs:
 	@docker-compose up -d sqs
 	@sleep 2

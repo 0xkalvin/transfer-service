@@ -1,8 +1,8 @@
-const postgres = require('../data-sources/postgres');
-const kafka = require('../data-sources/kafka');
-const sqs = require('../data-sources/sqs');
-const logger = require('../lib/logger')('TRANSFER_CREATION_WORKER');
-const { processEvent } = require('../transporters/sqs');
+const postgres = require('../../data-sources/postgres');
+const kafka = require('../../data-sources/kafka');
+const { makePoller } = require('../../data-sources/sqs');
+const logger = require('../../lib/logger')('TRANSFER_CREATION_WORKER');
+const { processEvent } = require('./process');
 
 const {
   SQS_TRANSFER_CREATION_QUEUE,
@@ -31,7 +31,7 @@ async function run() {
     process.exit(1);
   }
 
-  const poller = sqs.makePoller({
+  const poller = makePoller({
     queueUrl: SQS_TRANSFER_CREATION_QUEUE,
   });
 
