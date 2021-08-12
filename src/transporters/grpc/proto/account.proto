@@ -1,0 +1,35 @@
+syntax = "proto3";
+import "shared.proto";
+
+service AccountService {
+    rpc Create (CreateAccountRequest) returns (Account);
+    rpc Show (ShowAccountRequest) returns (Account);
+    rpc ListTransfers(ListTransfersRequest) returns (ListTransfersResponse);
+}
+
+message CreateAccountRequest {
+  required int64 balance = 1;
+  required string holder_name = 2;
+  required string holder_document_number = 3;
+}
+
+message ShowAccountRequest {
+  string id = 1;
+}
+
+message ListTransfersRequest {
+  required string account_id = 1;
+}
+
+message ListTransfersResponse {
+  repeated Shared.Transfer transfers = 1;
+}
+
+message Account {
+  required string id = 1;
+  required int64 balance = 2;
+  required string holder_name = 3;
+  required string holder_document_number = 4; 
+  required string created_at = 5; 
+  required string updated_at = 6; 
+}

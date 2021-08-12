@@ -106,6 +106,21 @@ services:
       - APP_TYPE=server
       - DATABASE_MAX_CONNECTIONS=100
 
+  grpc-server:
+    container_name: grpc-server
+    extends: base
+    command: npm run start:grpc-server
+    ports:
+      - "3001:3001"
+    links:
+      - postgres
+    depends_on:
+      - migrate
+    environment: 
+      - APP_NAME=grpc_server
+      - APP_TYPE=server
+      - DATABASE_MAX_CONNECTIONS=100
+
   transfer-processor-worker:
     container_name: transfer-processor-worker
     extends: base

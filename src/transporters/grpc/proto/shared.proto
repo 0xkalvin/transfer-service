@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package Shared;
+
+message Transfer {
+    required string id = 1;
+    required int64 amount = 2;
+    required string source_account_id = 3;
+    required string target_account_id = 4; 
+    required string status = 5;
+    required string created_at = 6; 
+    required string updated_at = 7; 
+}
