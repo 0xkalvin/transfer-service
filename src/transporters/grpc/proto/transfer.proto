@@ -1,0 +1,12 @@
+syntax = "proto3";
+import "shared.proto";
+
+service TransferService {
+    rpc Create (CreateTransferRequest) returns (Shared.Transfer);
+}
+
+message CreateTransferRequest {
+	required int64 amount = 1;
+	required string source_account_id = 2;
+	required string target_account_id = 3; 
+}

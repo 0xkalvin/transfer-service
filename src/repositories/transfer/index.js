@@ -14,7 +14,13 @@ async function create(payload, options) {
     ...options,
   });
 
-  return createdTransfer.toJSON ? createdTransfer.toJSON() : createdTransfer;
+  const transferAsJSON = createdTransfer.toJSON ? createdTransfer.toJSON() : createdTransfer;
+
+  return {
+    ...transferAsJSON,
+    created_at: transferAsJSON.created_at.toISOString(),
+    updated_at: transferAsJSON.updated_at.toISOString(),
+  };
 }
 
 async function findById(id, options) {

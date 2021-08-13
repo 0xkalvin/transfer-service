@@ -29,7 +29,7 @@ redis:
 .PHONY: redis
 
 run:
-	@docker-compose up rest-server transfer-processor-worker transfer-creation-worker
+	@docker-compose up rest-server grpc-server transfer-processor-worker transfer-creation-worker
 .PHONY: run
 
 repl:

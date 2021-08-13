@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "migrate": "node_modules/.bin/sequelize db:migrate",
+    "start:grpc-server": "nodemon src/transporters/grpc/entrypoint.js",
     "start:rest-server": "nodemon src/transporters/rest/entrypoint.js",
     "start:repl": "node src/transporters/repl/entrypoint.js",
     "start:transfer-kafka-processor-worker": "nodemon src/transporters/kafka/entrypoint.js",
@@ -25,6 +26,8 @@
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.24.0",
     "@elastic/elasticsearch": "^7.13.0",
+    "@grpc/grpc-js": "^1.3.7",
+    "@grpc/proto-loader": "^0.6.4",
     "express": "^4.17.1",
     "helmet": "^4.6.0",
     "kafkajs": "^1.15.0",

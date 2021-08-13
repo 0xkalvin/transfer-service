@@ -6,7 +6,13 @@ async function create(payload) {
 
   const createdAccount = await Account.create(payload);
 
-  return createdAccount.toJSON ? createdAccount.toJSON() : createdAccount;
+  const accountAsJSON = createdAccount.toJSON();
+
+  return {
+    ...accountAsJSON,
+    created_at: accountAsJSON.created_at.toISOString(),
+    updated_at: accountAsJSON.updated_at.toISOString(),
+  };
 }
 
 async function findById(id, options) {
