@@ -10,6 +10,7 @@ const logger = require('../../lib/logger')('GRPC_SERVER_ENTRYPOINT');
 
 const accountControllers = require('./controllers/account');
 const transferControllers = require('./controllers/transfer');
+const wrapAction = require('./middlewares/wrap-action');
 
 const protoLoadOptions = {
   keepCase: true,
@@ -95,8 +96,15 @@ async function run() {
 
   const server = new grpc.Server();
 
-  server.addService(accountDefinitions.AccountService.service, accountControllers);
-  server.addService(transferDefinitions.TransferService.service, transferControllers);
+  server.addService(accountDefinitions.AccountService.service, {
+    Create: wrapAction(accountControllers.Create),
+    Show: wrapAction(accountControllers.Show),
+    ListTransfers: wrapAction(accountControllers.ListTransfers),
+  });
+
+  server.addService(transferDefinitions.TransferService.service, {
+    Create: wrapAction(transferControllers.Create),
+  });
 
   server.bindAsync(`0.0.0.0:${PORT}`, grpc.ServerCredentials.createInsecure(), (error) => {
     if (error) {
