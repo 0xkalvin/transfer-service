@@ -24,7 +24,7 @@ A simple, over-engineered Node.js bank transfer system that leverages ~~or tries
 
 ```text
 src
-├── data-sources // Places where we get/send data to. Could be databases, other microservices, external APIs, messaging queues.  
+├── data-sources
 │   ├── elasticsearch
 │   │   ├── config.js
 │   │   └── index.js
@@ -53,21 +53,29 @@ src
 │       ├── index.js
 │       ├── local-setup.conf
 │       └── poller.js
-├── lib // Utilities shared between our application
+├── lib
 │   ├── business-errors.js
 │   └── logger.js
-├── repositories // Repositories for each entity, abstracting data sources access 
+├── repositories
 │   ├── account
 │   │   └── index.js
 │   └── transfer
 │       └── index.js
-├── services // Where all business logic is handled, it orchestrates our rules for each entity
+├── services
 │   ├── account
 │   │   └── index.js
 │   └── transfer
 │       └── index.js
-└── transporters // Defines how we expose our business entities/logic to the world. 
+└── transporters
     ├── grpc
+    │   ├── controllers
+    │   │   ├── account.js
+    │   │   └── transfer.js
+    │   ├── entrypoint.js
+    │   └── proto
+    │       ├── account.proto
+    │       ├── shared.proto
+    │       └── transfer.proto
     ├── kafka
     │   └── entrypoint.js
     ├── repl
@@ -228,7 +236,6 @@ Response (status code 201)
 
 
 ## TODO
-- Add GRPC transporter
 - decouple Kafka  transporter
 - Add database transations
 - Add schemas
