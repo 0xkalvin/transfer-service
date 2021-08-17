@@ -114,23 +114,27 @@ async function process(payload) {
   const targetAccountNewBalance = targetAccountBalance + transferAmount;
 
   // TODO: wrap these updates in a transaction
-  await transferRepository.update({
+  const updatedTransfer = await transferRepository.update({
     id: transferId,
   }, {
     status: 'settled',
   });
 
-  await accountRepository.update({
+  const updatedSourceAccount = await accountRepository.update({
     id: sourceAccountId,
   }, {
     balance: sourceAccountNewBalance,
   });
 
-  await accountRepository.update({
+  const updatedTargetAccount = await accountRepository.update({
     id: targetAccountId,
   }, {
     balance: targetAccountNewBalance,
   });
+
+  accountRepository.indexUpdate(updatedSourceAccount);
+  accountRepository.indexUpdate(updatedTargetAccount);
+  transferRepository.indexUpdate(updatedTransfer);
 }
 
 module.exports = {

@@ -2,6 +2,7 @@ const postgres = require('../../data-sources/postgres');
 const kafka = require('../../data-sources/kafka');
 const elasticseach = require('../../data-sources/elasticsearch');
 const redis = require('../../data-sources/redis');
+const logger = require('../../lib/logger')('TRANSFER_REPOSITORY');
 
 const {
   KAFKA_TRANSFERS_PROCESSOR_TOPIC,
@@ -71,10 +72,13 @@ async function update(filter, updates, options) {
 
   const updatedTransfers = await Transfer.update(updates, {
     where: filter,
+    returning: true,
+    plain: true,
+    raw: true,
     ...options,
   });
 
-  return updatedTransfers;
+  return updatedTransfers[1];
 }
 
 async function index(payload) {
@@ -83,6 +87,23 @@ async function index(payload) {
     body: payload,
     id: payload.id,
   });
+}
+
+async function indexUpdate(payload) {
+  try {
+    await elasticseach.connectionPool.update({
+      index: 'transfers',
+      body: {
+        doc: payload,
+      },
+      id: payload.id,
+    });
+  } catch (error) {
+    logger.error({
+      message: 'Failed to update elasticsearch transfer document',
+      error_message: error.message,
+    });
+  }
 }
 
 async function search(filters) {
@@ -130,6 +151,7 @@ module.exports = {
   create,
   enqueue,
   index,
+  indexUpdate,
   findById,
   findBySourceAccountId,
   saveIdempotency,

@@ -1,5 +1,6 @@
 const postgres = require('../../data-sources/postgres');
 const kafka = require('../../data-sources/kafka');
+const elasticsearch = require('../../data-sources/elasticsearch');
 const logger = require('../../lib/logger')('TRANSFER_PROCESSOR_WORKER');
 
 const { eachMessage } = require('./each-message');
@@ -16,6 +17,16 @@ async function run() {
   } catch (error) {
     logger.fatal({
       message: 'Transfer processor worker failed to connect to postgres. Exiting process...',
+    });
+
+    process.exit(1);
+  }
+
+  try {
+    await elasticsearch.connect();
+  } catch (error) {
+    logger.fatal({
+      message: 'Transfer processor worker failed to connect to elasticsearch. Exiting process...',
     });
 
     process.exit(1);

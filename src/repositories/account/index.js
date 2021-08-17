@@ -1,5 +1,6 @@
 const postgres = require('../../data-sources/postgres');
 const elasticseach = require('../../data-sources/elasticsearch');
+const logger = require('../../lib/logger')('ACCOUNT_REPOSITORY');
 
 async function create(payload) {
   const { Account } = postgres.connectionPool.models;
@@ -34,10 +35,13 @@ async function update(filter, updates, options) {
 
   const updatedAccounts = await Account.update(updates, {
     where: filter,
+    returning: true,
+    plain: true,
+    raw: true,
     ...options,
   });
 
-  return updatedAccounts;
+  return updatedAccounts[1];
 }
 
 async function index(payload) {
@@ -46,6 +50,23 @@ async function index(payload) {
     body: payload,
     id: payload.id,
   });
+}
+
+async function indexUpdate(payload) {
+  try {
+    await elasticseach.connectionPool.update({
+      index: 'accounts',
+      body: {
+        doc: payload,
+      },
+      id: payload.id,
+    });
+  } catch (error) {
+    logger.error({
+      message: 'Failed to update elasticsearch account document',
+      error_message: error.message,
+    });
+  }
 }
 
 async function search(filters) {
@@ -77,6 +98,7 @@ module.exports = {
   findById,
   get,
   index,
+  indexUpdate,
   search,
   update,
 };
