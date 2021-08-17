@@ -11,6 +11,9 @@ const attributes = {
   balance: {
     type: DataTypes.BIGINT,
     allowNull: false,
+    get() {
+      return Number(this.getDataValue('balance'));
+    },
   },
   holderName: {
     field: 'holder_name',
@@ -26,11 +29,21 @@ const attributes = {
     field: 'created_at',
     type: DataTypes.DATE,
     allowNull: false,
+    get() {
+      const rawDate = this.getDataValue('createdAt');
+
+      return rawDate.toISOString();
+    },
   },
   updatedAt: {
     field: 'updated_at',
     type: DataTypes.DATE,
     allowNull: false,
+    get() {
+      const rawDate = this.getDataValue('updatedAt');
+
+      return rawDate.toISOString();
+    },
   },
 };
 

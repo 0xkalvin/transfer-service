@@ -9,11 +9,7 @@ async function create(payload) {
 
   const accountAsJSON = createdAccount.toJSON();
 
-  return {
-    ...accountAsJSON,
-    createdAt: accountAsJSON.createdAt.toISOString(),
-    updatedAt: accountAsJSON.updatedAt.toISOString(),
-  };
+  return accountAsJSON;
 }
 
 async function findById(id, options) {
@@ -52,8 +48,8 @@ async function index(payload) {
       balance: payload.balance,
       holder_name: payload.holderName,
       holder_document_number: payload.holderDocumentNumber,
-      created_at: payload.created_at,
-      updated_at: payload.updated_at,
+      created_at: payload.createdAt,
+      updated_at: payload.updatedAt,
     },
     id: payload.id,
   });

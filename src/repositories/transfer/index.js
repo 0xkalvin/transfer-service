@@ -17,11 +17,7 @@ async function create(payload, options) {
 
   const transferAsJSON = createdTransfer.toJSON ? createdTransfer.toJSON() : createdTransfer;
 
-  return {
-    ...transferAsJSON,
-    createdAt: transferAsJSON.createdAt.toISOString(),
-    updatedAt: transferAsJSON.updatedAt.toISOString(),
-  };
+  return transferAsJSON;
 }
 
 async function findById(id, options) {
@@ -89,8 +85,8 @@ async function index(payload) {
       amount: payload.amount,
       source_account_id: payload.sourceAccountId,
       target_account_id: payload.targetAccountId,
-      created_at: payload.created_at,
-      updated_at: payload.updated_at,
+      created_at: payload.createdAt,
+      updated_at: payload.updatedAt,
     },
     id: payload.id,
   });
