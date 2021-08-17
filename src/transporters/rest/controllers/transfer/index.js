@@ -1,4 +1,5 @@
 const transferService = require('../../../../services/transfer');
+const { objectToSnakeCase } = require('../../../../lib/object-to-snakecase');
 
 async function create(request) {
   const payload = request.body;
@@ -13,7 +14,7 @@ async function create(request) {
 
   return {
     statusCode: 201,
-    responsePayload: createdTransfer,
+    responsePayload: objectToSnakeCase(createdTransfer),
   };
 }
 

@@ -51,8 +51,8 @@ async function create(payload, idempotencyKey = null) {
   }
 
   const createdTransfer = await transferRepository.create({
-    source_account_id: sourceAccountId,
-    target_account_id: targetAccountId,
+    sourceAccountId,
+    targetAccountId,
     amount: transferAmount,
   });
 

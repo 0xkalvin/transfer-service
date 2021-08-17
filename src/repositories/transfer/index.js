@@ -19,8 +19,8 @@ async function create(payload, options) {
 
   return {
     ...transferAsJSON,
-    created_at: transferAsJSON.created_at.toISOString(),
-    updated_at: transferAsJSON.updated_at.toISOString(),
+    createdAt: transferAsJSON.createdAt.toISOString(),
+    updatedAt: transferAsJSON.updatedAt.toISOString(),
   };
 }
 
@@ -84,7 +84,14 @@ async function update(filter, updates, options) {
 async function index(payload) {
   await elasticseach.connectionPool.index({
     index: 'transfers',
-    body: payload,
+    body: {
+      id: payload.id,
+      amount: payload.amount,
+      source_account_id: payload.sourceAccountId,
+      target_account_id: payload.targetAccountId,
+      created_at: payload.created_at,
+      updated_at: payload.updated_at,
+    },
     id: payload.id,
   });
 }

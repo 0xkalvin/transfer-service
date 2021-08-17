@@ -12,20 +12,30 @@ const attributes = {
     type: DataTypes.BIGINT,
     allowNull: false,
   },
-  holder_name: {
+  holderName: {
+    field: 'holder_name',
     type: DataTypes.STRING,
     allowNull: true,
   },
-  holder_document_number: {
+  holderDocumentNumber: {
+    field: 'holder_document_number',
     type: DataTypes.STRING,
     allowNull: true,
+  },
+  createdAt: {
+    field: 'created_at',
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  updatedAt: {
+    field: 'updated_at',
+    type: DataTypes.DATE,
+    allowNull: false,
   },
 };
 
 const options = {
   tableName: 'Accounts',
-  createdAt: 'created_at',
-  updatedAt: 'updated_at',
   underscored: true,
 };
 

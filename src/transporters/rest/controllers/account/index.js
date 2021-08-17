@@ -1,13 +1,18 @@
 const accountService = require('../../../../services/account');
+const { objectToSnakeCase } = require('../../../../lib/object-to-snakecase');
 
 async function create(request) {
   const payload = request.body;
 
-  const createdAccount = await accountService.create(payload);
+  const createdAccount = await accountService.create({
+    balance: payload.balance,
+    holderName: payload.holder_name,
+    holderDocumentNumber: payload.holder_document_number,
+  });
 
   return {
     statusCode: 201,
-    responsePayload: createdAccount,
+    responsePayload: objectToSnakeCase(createdAccount),
   };
 }
 
@@ -17,7 +22,7 @@ async function show(request) {
 
   return {
     statusCode: 200,
-    responsePayload: account,
+    responsePayload: objectToSnakeCase(account),
   };
 }
 
@@ -27,7 +32,7 @@ async function listTransfers(request) {
 
   return {
     statusCode: 200,
-    responsePayload: transfers,
+    responsePayload: transfers.map(objectToSnakeCase),
   };
 }
 

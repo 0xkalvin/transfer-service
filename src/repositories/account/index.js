@@ -11,8 +11,8 @@ async function create(payload) {
 
   return {
     ...accountAsJSON,
-    created_at: accountAsJSON.created_at.toISOString(),
-    updated_at: accountAsJSON.updated_at.toISOString(),
+    createdAt: accountAsJSON.createdAt.toISOString(),
+    updatedAt: accountAsJSON.updatedAt.toISOString(),
   };
 }
 
@@ -47,7 +47,14 @@ async function update(filter, updates, options) {
 async function index(payload) {
   await elasticseach.connectionPool.index({
     index: 'accounts',
-    body: payload,
+    body: {
+      id: payload.id,
+      balance: payload.balance,
+      holder_name: payload.holderName,
+      holder_document_number: payload.holderDocumentNumber,
+      created_at: payload.created_at,
+      updated_at: payload.updated_at,
+    },
     id: payload.id,
   });
 }

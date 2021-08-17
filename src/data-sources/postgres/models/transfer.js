@@ -8,11 +8,13 @@ const attributes = {
     allowNull: false,
     defaultValue: crypto.randomUUID,
   },
-  source_account_id: {
+  sourceAccountId: {
+    field: 'source_account_id',
     type: DataTypes.STRING,
     allowNull: false,
   },
-  target_account_id: {
+  targetAccountId: {
+    field: 'target_account_id',
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -26,6 +28,16 @@ const attributes = {
     values: ['processing', 'settled', 'failed'],
     defaultValue: 'processing',
   },
+  createdAt: {
+    field: 'created_at',
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  updatedAt: {
+    field: 'updated_at',
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
 };
 
 const options = {
@@ -35,8 +47,6 @@ const options = {
     { fields: ['status'] },
   ],
   tableName: 'Transfers',
-  createdAt: 'created_at',
-  updatedAt: 'updated_at',
   underscored: true,
 };
 
