@@ -1,0 +1,9 @@
+{
+    "ignore": [
+    "tests",
+    "scripts",
+    ".git",
+    "node_modules"
+    ],
+    "ext": "js"
+}
