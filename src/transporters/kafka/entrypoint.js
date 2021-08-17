@@ -1,8 +1,8 @@
 const postgres = require('../../data-sources/postgres');
 const kafka = require('../../data-sources/kafka');
-const transferService = require('../../services/transfer');
-
 const logger = require('../../lib/logger')('TRANSFER_PROCESSOR_WORKER');
+
+const { eachMessage } = require('./each-message');
 
 const {
   KAFKA_TRANSFERS_PROCESSOR_TOPIC,
@@ -45,19 +45,7 @@ async function run() {
   });
 
   await consumer.run({
-    eachMessage: async ({ message }) => {
-      try {
-        const processPayload = JSON.parse(message.value.toString());
-
-        await transferService.process(processPayload);
-      } catch (error) {
-        logger.error({
-          message: 'Failed to process message',
-          error_message: error.message,
-          error_stack: error.stack,
-        });
-      }
-    },
+    eachMessage: eachMessage(consumer).bind(this),
   });
 }
 

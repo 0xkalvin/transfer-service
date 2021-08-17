@@ -1,18 +1,20 @@
 const logger = require('../../../lib/logger')('ERROR_HANDLER');
-const { BusinessError } = require('../../../lib/business-errors');
+const { BaseError } = require('../../../lib/errors');
 const {
   ConflicError,
   InternalServerError,
+  UnavailableError,
   UnprocessableEntityError,
 } = require('../http-errors');
 
 const businessErrorsToHttpMap = new Map([
   ['CONFLICT_ERROR', ConflicError],
   ['LOGIC_INFRACTION', UnprocessableEntityError],
+  ['DATASOURCE_UNAVAILABLE', UnavailableError],
 ]);
 
 const normalizeError = (error) => {
-  if (error instanceof BusinessError) {
+  if (error instanceof BaseError) {
     const HttpError = businessErrorsToHttpMap.get(error.type);
 
     return new HttpError(error.message);

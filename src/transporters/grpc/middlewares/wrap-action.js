@@ -1,7 +1,7 @@
 const grpc = require('@grpc/grpc-js');
 
 const logger = require('../../../lib/logger')('WRAP_ACTION');
-const { BusinessError } = require('../../../lib/business-errors');
+const { BaseError } = require('../../../lib/errors');
 
 const businessErrorsToGRPCErrorsMap = new Map([
   ['CONFLICT_ERROR', grpc.status.ALREADY_EXISTS],
@@ -9,7 +9,7 @@ const businessErrorsToGRPCErrorsMap = new Map([
 ]);
 
 function getGRPCStatusCode(error) {
-  if (error instanceof BusinessError) {
+  if (error instanceof BaseError) {
     const grpcStatus = businessErrorsToGRPCErrorsMap.get(error.type);
 
     return grpcStatus;

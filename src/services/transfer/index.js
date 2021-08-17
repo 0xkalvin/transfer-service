@@ -1,7 +1,6 @@
 const accountRepository = require('../../repositories/account');
 const transferRepository = require('../../repositories/transfer');
-const logger = require('../../lib/logger')('TRANSFER_SERVICE');
-const { BusinessError } = require('../../lib/business-errors');
+const { BaseError } = require('../../lib/errors');
 
 async function create(payload, idempotencyKey = null) {
   const {
@@ -17,7 +16,7 @@ async function create(payload, idempotencyKey = null) {
     );
 
     if (alreadyExists) {
-      throw new BusinessError(
+      throw new BaseError(
         'Transfer already created with same idempotency key', 'CONFLICT_ERROR',
       );
     }
@@ -40,15 +39,15 @@ async function create(payload, idempotencyKey = null) {
     })]);
 
   if (!sourceAccount) {
-    throw new BusinessError('Source account does not exist', 'LOGIC_INFRACTION');
+    throw new BaseError('Source account does not exist', 'LOGIC_INFRACTION');
   }
 
   if (!targetAccount) {
-    throw new BusinessError('Target account does not exist', 'LOGIC_INFRACTION');
+    throw new BaseError('Target account does not exist', 'LOGIC_INFRACTION');
   }
 
   if (transferAmount > sourceAccount.balance) {
-    throw new BusinessError('Insufficient balance for source account', 'LOGIC_INFRACTION');
+    throw new BaseError('Insufficient balance for source account', 'LOGIC_INFRACTION');
   }
 
   const createdTransfer = await transferRepository.create({
@@ -92,19 +91,27 @@ async function process(payload) {
   ]);
 
   if (!transfer) {
-    throw new BusinessError('Transfer does not exist', 'LOGIC_INFRACTION');
+    throw new BaseError('Transfer does not exist', 'LOGIC_INFRACTION');
   }
 
   if (!sourceAccount) {
-    throw new BusinessError('Source account does not exist', 'LOGIC_INFRACTION');
+    throw new BaseError('Source account does not exist', 'LOGIC_INFRACTION');
   }
 
   if (!targetAccount) {
-    throw new BusinessError('Target account does not exist', 'LOGIC_INFRACTION');
+    throw new BaseError('Target account does not exist', 'LOGIC_INFRACTION');
   }
 
-  const sourceAccountNewBalance = Number(sourceAccount.balance) - Number(transfer.amount);
-  const targetAccountNewBalance = Number(targetAccount.balance) + Number(transfer.amount);
+  const transferAmount = Number(transfer.amount);
+  const sourceAccountBalance = Number(sourceAccount.balance);
+  const targetAccountBalance = Number(targetAccount.balance);
+
+  if (transferAmount > sourceAccountBalance) {
+    throw new BaseError('Insufficient balance for source account', 'LOGIC_INFRACTION');
+  }
+
+  const sourceAccountNewBalance = sourceAccountBalance - transferAmount;
+  const targetAccountNewBalance = targetAccountBalance + transferAmount;
 
   // TODO: wrap these updates in a transaction
   await transferRepository.update({
@@ -123,14 +130,6 @@ async function process(payload) {
     id: targetAccountId,
   }, {
     balance: targetAccountNewBalance,
-  });
-
-  logger.info({
-    message: 'Tranfer successfully settled',
-    transfer_id: transferId,
-    source_account_id: sourceAccountId,
-    target_account_id: targetAccountId,
-    amount: transfer.amount,
   });
 }
 

@@ -21,6 +21,16 @@ class InternalServerError extends HttpError {
   }
 }
 
+class UnavailableError extends HttpError {
+  constructor() {
+    super(
+      'Service is currently unavailable, retry later',
+      'UnavailableError',
+      503,
+    );
+  }
+}
+
 class UnprocessableEntityError extends HttpError {
   constructor(message) {
     super(
@@ -46,4 +56,5 @@ module.exports = {
   UnprocessableEntityError,
   InternalServerError,
   ConflicError,
+  UnavailableError,
 };
