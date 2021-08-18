@@ -1,4 +1,5 @@
 const pino = require('pino');
+const tracer = require('./tracer');
 
 const {
   LOG_LEVEL = 'info',
@@ -16,6 +17,7 @@ module.exports = (name) => pino({
   mixin() {
     return {
       env: process.env.NODE_ENV,
+      trace_id: tracer.getTraceId(),
     };
   },
 });

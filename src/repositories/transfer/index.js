@@ -5,6 +5,7 @@ const {
   redis,
 } = require('../../data-sources');
 const logger = require('../../lib/logger')('TRANSFER_REPOSITORY');
+const tracer = require('../../lib/tracer');
 
 const {
   KAFKA_TRANSFERS_PROCESSOR_TOPIC,
@@ -59,6 +60,9 @@ async function enqueue(payload) {
       {
         key: payload.id,
         value: payload,
+        headers: {
+          'x-trace-id': tracer.getTraceId(),
+        },
       },
     ],
     topic: KAFKA_TRANSFERS_PROCESSOR_TOPIC,
