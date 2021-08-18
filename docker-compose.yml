@@ -27,6 +27,11 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
 
   elasticsearch:
     container_name: elasticsearch
@@ -37,6 +42,11 @@ services:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xmx256m -Xms256m
       - ELASTIC_PASSWORD=changeme
+    healthcheck:
+      test: ["CMD", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
 
   redis:
     container_name: redis
@@ -44,6 +54,11 @@ services:
     command: redis-server --requirepass secret
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
 
   zookeeper:
     image: confluentinc/cp-zookeeper:6.2.0
@@ -75,6 +90,11 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--list", "--zookeeper", "zookeeper:2181"]
+      interval: 30s
+      timeout: 10s
+      retries: 4
 
   sqs:
     container_name: sqs
@@ -165,3 +185,19 @@ services:
       - APP_NAME=repl
       - APP_TYPE=repl
       - DATABASE_MAX_CONNECTIONS=10
+
+  tests:
+    container_name: tests
+    extends: base
+    command: npm run test
+    depends_on:
+      migrate:
+        condition: service_started
+      sqs:
+        condition: service_started
+      elasticsearch:
+        condition: service_started
+      redis: 
+        condition: service_healthy
+      kafka:
+        condition: service_started

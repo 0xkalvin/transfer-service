@@ -55,18 +55,26 @@ async function findBySourceAccountId(sourceAccountId, options) {
 }
 
 async function enqueue(payload) {
-  await kafka.producer.sendMessages({
-    messages: [
-      {
-        key: payload.id,
-        value: payload,
-        headers: {
-          'x-trace-id': tracer.getTraceId(),
+  try {
+    await kafka.producer.sendMessages({
+      messages: [
+        {
+          key: payload.id,
+          value: payload,
+          headers: {
+            'x-trace-id': tracer.getTraceId(),
+          },
         },
-      },
-    ],
-    topic: KAFKA_TRANSFERS_PROCESSOR_TOPIC,
-  });
+      ],
+      topic: KAFKA_TRANSFERS_PROCESSOR_TOPIC,
+    });
+  } catch (error) {
+    logger.error({
+      message: 'Failed to enqueue transfer on kafka topic',
+      error_message: error.message,
+      error_stack: error.stack,
+    });
+  }
 }
 
 async function update(filter, updates, options) {

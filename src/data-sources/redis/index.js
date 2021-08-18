@@ -26,7 +26,14 @@ async function connect() {
   }
 }
 
+async function disconnect() {
+  const quitAsync = promisify(client.quit).bind(client);
+
+  await quitAsync();
+}
+
 module.exports = {
   client,
   connect,
+  disconnect,
 };

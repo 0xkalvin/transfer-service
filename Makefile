@@ -41,6 +41,11 @@ sqs:
 	@sleep 2
 .PHONY: sqs
 
+test: infra
+	@docker-compose run --rm tests
+	@sleep 2
+.PHONY: test
+
 zookeeper:
 	@docker-compose up -d zookeeper
 	@sleep 2

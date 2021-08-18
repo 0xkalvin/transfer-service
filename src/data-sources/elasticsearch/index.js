@@ -23,7 +23,12 @@ async function connect() {
   }
 }
 
+async function disconnect() {
+  await connectionPool.close();
+}
+
 module.exports = {
   connectionPool,
   connect,
+  disconnect,
 };
