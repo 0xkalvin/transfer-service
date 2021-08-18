@@ -7,6 +7,12 @@ async function create(payload) {
 
   accountRepository.index(createdAccount);
 
+  logger.debug({
+    message: 'Account created successfully',
+    account_id: createdAccount.index,
+    balance: createdAccount.balance,
+  });
+
   return createdAccount;
 }
 

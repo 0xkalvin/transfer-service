@@ -1,6 +1,7 @@
 const accountRepository = require('../../repositories/account');
 const transferRepository = require('../../repositories/transfer');
 const { BaseError } = require('../../lib/errors');
+const logger = require('../../lib/logger')('TRANSFER_SERVICE');
 
 async function create(payload, idempotencyKey = null) {
   const {
@@ -63,6 +64,14 @@ async function create(payload, idempotencyKey = null) {
   });
 
   transferRepository.index(createdTransfer);
+
+  logger.debug({
+    message: 'Transfer created successfully',
+    transfer_id: createdTransfer.id,
+    source_account_id: sourceAccountId,
+    target_account_id: targetAccountId,
+    idempotency_key: idempotencyKey,
+  });
 
   return createdTransfer;
 }
@@ -135,6 +144,13 @@ async function process(payload) {
   accountRepository.indexUpdate(updatedSourceAccount);
   accountRepository.indexUpdate(updatedTargetAccount);
   transferRepository.indexUpdate(updatedTransfer);
+
+  logger.debug({
+    message: 'Transfer processed successfully',
+    transfer_id: updatedTransfer.id,
+    source_account_id: sourceAccountId,
+    target_account_id: targetAccountId,
+  });
 }
 
 module.exports = {
