@@ -21,11 +21,12 @@ const disconnect = async () => {
 
 const sendMessages = async ({ messages, topic }) => {
   const normalizedMessages = messages.map((message) => {
-    const { key, value } = message;
+    const { key, value, headers } = message;
 
     return {
       key: String(key),
       value: Buffer.from(JSON.stringify(value)),
+      headers,
     };
   });
 

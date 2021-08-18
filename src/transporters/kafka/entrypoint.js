@@ -1,3 +1,7 @@
+const tracer = require('../../lib/tracer');
+
+tracer.init();
+
 const {
   postgres,
   kafka,
@@ -58,7 +62,17 @@ async function run() {
   });
 
   await consumer.run({
-    eachMessage: eachMessage(consumer).bind(this),
+    eachMessage: (...parameters) => {
+      const { message } = parameters[0];
+
+      const traceSent = message.headers['x-trace-id'];
+
+      const traceId = (traceSent && traceSent.toString()) || tracer.generateTraceId();
+
+      tracer.saveTraceId(traceId);
+
+      return eachMessage(consumer).apply(this, parameters);
+    },
   });
 }
 
