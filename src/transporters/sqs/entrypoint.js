@@ -1,6 +1,9 @@
-const postgres = require('../../data-sources/postgres');
-const kafka = require('../../data-sources/kafka');
-const { makePoller } = require('../../data-sources/sqs');
+const {
+  postgres,
+  kafka,
+  elasticsearch,
+} = require('../../data-sources');
+const makePoller = require('./poller');
 const logger = require('../../lib/logger')('TRANSFER_CREATION_WORKER');
 const { processEvent } = require('./process');
 
@@ -14,6 +17,16 @@ async function run() {
   } catch (error) {
     logger.fatal({
       message: 'Transfer creation worker failed to connect to postgres. Exiting process...',
+    });
+
+    process.exit(1);
+  }
+
+  try {
+    await elasticsearch.connect();
+  } catch (error) {
+    logger.fatal({
+      message: 'Transfer creation worker failed to connect to elasticsearch. Exiting process...',
     });
 
     process.exit(1);

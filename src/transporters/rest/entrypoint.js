@@ -1,8 +1,10 @@
 const restApplication = require('./application');
-const kafka = require('../../data-sources/kafka');
-const postgres = require('../../data-sources/postgres');
-const elasticsearch = require('../../data-sources/elasticsearch');
-const redis = require('../../data-sources/redis');
+const {
+  kafka,
+  elasticsearch,
+  postgres,
+  redis,
+} = require('../../data-sources');
 const logger = require('../../lib/logger')('REST_SERVER_ENTRYPOINT');
 
 const {

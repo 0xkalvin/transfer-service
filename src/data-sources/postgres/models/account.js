@@ -32,7 +32,7 @@ const attributes = {
     get() {
       const rawDate = this.getDataValue('createdAt');
 
-      return rawDate.toISOString();
+      return (rawDate && rawDate.toISOString()) || null;
     },
   },
   updatedAt: {
@@ -42,7 +42,7 @@ const attributes = {
     get() {
       const rawDate = this.getDataValue('updatedAt');
 
-      return rawDate.toISOString();
+      return (rawDate && rawDate.toISOString()) || null;
     },
   },
 };

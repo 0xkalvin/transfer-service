@@ -1,6 +1,8 @@
-const postgres = require('../../data-sources/postgres');
-const kafka = require('../../data-sources/kafka');
-const elasticsearch = require('../../data-sources/elasticsearch');
+const {
+  postgres,
+  kafka,
+  elasticsearch,
+} = require('../../data-sources');
 const logger = require('../../lib/logger')('TRANSFER_PROCESSOR_WORKER');
 
 const { eachMessage } = require('./each-message');

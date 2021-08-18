@@ -2,10 +2,12 @@ const protoLoader = require('@grpc/proto-loader');
 const grpc = require('@grpc/grpc-js');
 const path = require('path');
 
-const kafka = require('../../data-sources/kafka');
-const postgres = require('../../data-sources/postgres');
-const elasticsearch = require('../../data-sources/elasticsearch');
-const redis = require('../../data-sources/redis');
+const {
+  kafka,
+  elasticsearch,
+  postgres,
+  redis,
+} = require('../../data-sources');
 const logger = require('../../lib/logger')('GRPC_SERVER_ENTRYPOINT');
 
 const accountControllers = require('./controllers/account');

@@ -1,7 +1,9 @@
-const postgres = require('../../data-sources/postgres');
-const kafka = require('../../data-sources/kafka');
-const elasticseach = require('../../data-sources/elasticsearch');
-const redis = require('../../data-sources/redis');
+const {
+  postgres,
+  elasticsearch,
+  kafka,
+  redis,
+} = require('../../data-sources');
 const logger = require('../../lib/logger')('TRANSFER_REPOSITORY');
 
 const {
@@ -78,13 +80,14 @@ async function update(filter, updates, options) {
 }
 
 async function index(payload) {
-  await elasticseach.connectionPool.index({
+  await elasticsearch.connectionPool.index({
     index: 'transfers',
     body: {
       id: payload.id,
       amount: payload.amount,
       source_account_id: payload.sourceAccountId,
       target_account_id: payload.targetAccountId,
+      status: payload.status,
       created_at: payload.createdAt,
       updated_at: payload.updatedAt,
     },
@@ -94,7 +97,7 @@ async function index(payload) {
 
 async function indexUpdate(payload) {
   try {
-    await elasticseach.connectionPool.update({
+    await elasticsearch.connectionPool.update({
       index: 'transfers',
       body: {
         doc: payload,
@@ -110,7 +113,7 @@ async function indexUpdate(payload) {
 }
 
 async function search(filters) {
-  const { body } = await elasticseach.connectionPool.search({
+  const { body } = await elasticsearch.connectionPool.search({
     index: 'transfers',
     body: filters,
   });

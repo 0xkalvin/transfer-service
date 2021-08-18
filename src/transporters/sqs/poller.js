@@ -3,7 +3,7 @@ const {
   ReceiveMessageCommand,
 } = require('@aws-sdk/client-sqs');
 
-const sqsClient = require('./client');
+const sqsClient = require('../../data-sources/sqs/client');
 const logger = require('../../lib/logger')('SQS_POLLER');
 
 function makePoller(options) {

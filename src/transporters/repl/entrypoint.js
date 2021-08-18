@@ -1,7 +1,11 @@
 const repl = require('repl');
 
-const kafka = require('../../data-sources/kafka');
-const postgres = require('../../data-sources/postgres');
+const {
+  kafka,
+  elasticsearch,
+  postgres,
+  redis,
+} = require('../../data-sources');
 const accountService = require('../../services/account');
 const transferService = require('../../services/transfer');
 const logger = require('../../lib/logger')('REPL_ENTRYPOINT');
@@ -30,6 +34,26 @@ async function run() {
   } catch (error) {
     logger.fatal({
       message: 'REPL failed to connect to postgres. Exiting process...',
+    });
+
+    process.exit(1);
+  }
+
+  try {
+    await redis.connect();
+  } catch (error) {
+    logger.fatal({
+      message: 'REPL failed to connect to redis. Exiting process...',
+    });
+
+    process.exit(1);
+  }
+
+  try {
+    await elasticsearch.connect();
+  } catch (error) {
+    logger.fatal({
+      message: 'REPL failed to connect to elasticsearch. Exiting process...',
     });
 
     process.exit(1);

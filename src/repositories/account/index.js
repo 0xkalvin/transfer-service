@@ -1,5 +1,7 @@
-const postgres = require('../../data-sources/postgres');
-const elasticseach = require('../../data-sources/elasticsearch');
+const {
+  postgres,
+  elasticsearch,
+} = require('../../data-sources');
 const logger = require('../../lib/logger')('ACCOUNT_REPOSITORY');
 
 async function create(payload) {
@@ -41,7 +43,7 @@ async function update(filter, updates, options) {
 }
 
 async function index(payload) {
-  await elasticseach.connectionPool.index({
+  await elasticsearch.connectionPool.index({
     index: 'accounts',
     body: {
       id: payload.id,
@@ -57,7 +59,7 @@ async function index(payload) {
 
 async function indexUpdate(payload) {
   try {
-    await elasticseach.connectionPool.update({
+    await elasticsearch.connectionPool.update({
       index: 'accounts',
       body: {
         doc: payload,
@@ -73,7 +75,7 @@ async function indexUpdate(payload) {
 }
 
 async function search(filters) {
-  const { body } = await elasticseach.connectionPool.search({
+  const { body } = await elasticsearch.connectionPool.search({
     index: 'accounts',
     body: filters,
   });
@@ -85,7 +87,7 @@ async function search(filters) {
 }
 
 async function get(accountId) {
-  const { body } = await elasticseach.connectionPool.get({
+  const { body } = await elasticsearch.connectionPool.get({
     index: 'accounts',
     id: accountId,
   });
