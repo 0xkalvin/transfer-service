@@ -113,32 +113,20 @@ async function process(payload) {
 
   const transferAmount = Number(transfer.amount);
   const sourceAccountBalance = Number(sourceAccount.balance);
-  const targetAccountBalance = Number(targetAccount.balance);
 
   if (transferAmount > sourceAccountBalance) {
     throw new BaseError('Insufficient balance for source account', 'LOGIC_INFRACTION');
   }
 
-  const sourceAccountNewBalance = sourceAccountBalance - transferAmount;
-  const targetAccountNewBalance = targetAccountBalance + transferAmount;
-
-  // TODO: wrap these updates in a transaction
-  const updatedTransfer = await transferRepository.update({
-    id: transferId,
-  }, {
-    status: 'settled',
-  });
-
-  const updatedSourceAccount = await accountRepository.update({
-    id: sourceAccountId,
-  }, {
-    balance: sourceAccountNewBalance,
-  });
-
-  const updatedTargetAccount = await accountRepository.update({
-    id: targetAccountId,
-  }, {
-    balance: targetAccountNewBalance,
+  const [
+    updatedTransfer,
+    updatedSourceAccount,
+    updatedTargetAccount,
+  ] = await transferRepository.settle({
+    transferId,
+    sourceAccountId,
+    targetAccountId,
+    amount: transferAmount,
   });
 
   accountRepository.indexUpdate(updatedSourceAccount);
@@ -147,7 +135,7 @@ async function process(payload) {
 
   logger.debug({
     message: 'Transfer processed successfully',
-    transfer_id: updatedTransfer.id,
+    transfer_id: transferId,
     source_account_id: sourceAccountId,
     target_account_id: targetAccountId,
   });

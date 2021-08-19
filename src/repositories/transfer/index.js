@@ -83,6 +83,68 @@ async function update(filter, updates, options) {
   return updatedTransfers[1];
 }
 
+async function settle(payload) {
+  const {
+    transferId,
+    sourceAccountId,
+    targetAccountId,
+    amount,
+  } = payload;
+
+  const transactionOptions = {
+    isolationLevel: postgres.Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+  };
+
+  const result = await postgres.connectionPool.transaction(transactionOptions, (transaction) => {
+    const queryText = `
+      UPDATE "Transfers" SET status = 'settled' WHERE id = :transfer_id RETURNING *;
+      UPDATE "Accounts" SET balance = balance - :amount WHERE id = :source_account_id RETURNING *;
+      UPDATE "Accounts" SET balance = balance + :amount WHERE id = :target_account_id RETURNING *;
+    `;
+
+    const replacements = {
+      amount,
+      source_account_id: sourceAccountId,
+      target_account_id: targetAccountId,
+      transfer_id: transferId,
+    };
+
+    return postgres.connectionPool.query(queryText, {
+      plain: false,
+      raw: true,
+      returning: true,
+      replacements,
+      transaction,
+      type: postgres.Sequelize.QueryTypes.UPDATE,
+    });
+  });
+
+  const transfer = result[0][0];
+  const sourceAccount = result[0][1];
+  const targetAccount = result[0][2];
+
+  return [
+    {
+      ...transfer,
+      amount: Number(transfer.amount),
+      created_at: transfer.created_at.toISOString(),
+      updated_at: transfer.updated_at.toISOString(),
+    },
+    {
+      ...sourceAccount,
+      balance: Number(sourceAccount.balance),
+      created_at: sourceAccount.created_at.toISOString(),
+      updated_at: sourceAccount.updated_at.toISOString(),
+    },
+    {
+      ...targetAccount,
+      balance: Number(targetAccount.balance),
+      created_at: targetAccount.created_at.toISOString(),
+      updated_at: targetAccount.updated_at.toISOString(),
+    },
+  ];
+}
+
 async function index(payload) {
   await elasticsearch.connectionPool.index({
     index: 'transfers',
@@ -167,4 +229,5 @@ module.exports = {
   saveIdempotency,
   search,
   update,
+  settle,
 };

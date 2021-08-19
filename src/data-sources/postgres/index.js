@@ -38,5 +38,6 @@ async function connect() {
 
 module.exports = {
   connectionPool,
+  Sequelize,
   connect,
 };
